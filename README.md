@@ -5,13 +5,14 @@
 
 # platform-http-cache
 
-Default HTTP cache handling for [eZ Platform][ezplatform].
+As of 1.12 default HTTP cache handling for [eZ Platform][ezplatform], and unlike the one bundled in [ezpublish-kernel][ezpublish-kernel]
+and now deprecated, it centers on the use of (multi) cache tagging across Symfony Proxy _(using enhanced data store)_,
+Varnish _(using [xkey][Varnish-xkey])_ and Fastly _(available for eZ Platform Cloud Enterprise users as of 1.13LTS)_.
 
-This package externalizes the HTTP cache handling of [ezpublish-kernel][ezpublish-kernel].
-It is by default installed with ezplatform 1.8, and has been enabled in the `AppKernel` from 1.12.
+It has been bundled with ezplatform since 1.8, and has been enabled by default since 1.12.
 
-## Enabling the package
-Add the package to `app/AppKernel.php`, *before* the EzPublishCoreBundle declaration:
+## Enabling the package on versions prior to 1.12
+1. Add the package to `app/AppKernel.php`, *before* `EzPublishCoreBundle`, but after `FOSHttpCacheBundle`:
 
 ```php
     public function registerBundles()
@@ -25,26 +26,12 @@ Add the package to `app/AppKernel.php`, *before* the EzPublishCoreBundle declara
         );
 ```
 
-The package will replace the services from the kernel, thus enabling the new features, such as multi-tagging.
+The package will replace several services from the kernel, thus enabling the new features, such as multi-tagging.
 
-The application cache class needs to be customized. If you haven't changed the `AppCache` class, you can do so
-by setting the `SYMFONY_HTTP_CACHE_CLASS` environment variable for your PHP or web server user.
-If you use your own `AppCache` class, you will have to make it to extend from this class instead
-of from the CoreBundle's.
-
-For PHP's internal server you can set it as shell environment variable before starting server:
-
-    export SYMFONY_HTTP_CACHE_CLASS='EzSystems\PlatformHttpCacheBundle\AppCache'
-
-For Apache, with the default eZ Platform virtual host definition, uncomment the `SetEnv` lines for the two
-variables above in your virtualhost, and set the values accordingly:
-
-    SetEnv SYMFONY_HTTP_CACHE_CLASS='EzSystems\PlatformHttpCacheBundle\AppCache'
-
-For Nginx, set the variables using `fastcgi_param`:
-
-    fastcgi_param SYMFONY_HTTP_CACHE_CLASS "EzSystems\PlatformHttpCacheBundle\AppCache";
+2. The application cache class needs to be customized. This is done by modifying `AppCache` class, you will have to make
+extend `EzSystems\PlatformHttpCacheBundle\AppCache`.
     
+
 Do not forget to restart your web server.
 
 ## Usage with Varnish
@@ -83,3 +70,4 @@ A set of Slots will send HTTP PURGE requests for each cache tag affected by writ
 
 [ezplatform]: http://github.com/ezsystems/ezplatform
 [ezpublish-kernel]: http://github.com/ezsystems/ezpubish-kernel
+[Varnish-xkey]: https://github.com/varnish/varnish-modules/blob/master/docs/vmod_xkey.rst
