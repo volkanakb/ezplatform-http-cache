@@ -162,6 +162,14 @@ class TagAwareStore extends Store implements RequestAwarePurger
     }
 
     /**
+     * Purge all cache.
+     */
+    protected function purgeAllContent()
+    {
+        $this->fs->remove((new Finder())->in($this->root));
+    }
+
+    /**
      * Purges cache for tag.
      *
      * @param string $tag
